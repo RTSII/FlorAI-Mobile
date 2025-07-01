@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "FlorAI",
+    "slug": "florai-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/app-icon.png",
+    "scheme": "florai",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FEFBFF"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.florai.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FlorAI needs access to your camera to identify plants and monitor their health.",
+        "NSPhotoLibraryUsageDescription": "FlorAI needs access to your photo library to analyze plant photos you've taken.",
+        "NSLocationWhenInUseUsageDescription": "FlorAI uses your location to provide accurate plant information and care recommendations based on your region.",
+        "NSMotionUsageDescription": "FlorAI uses motion data to help stabilize the camera when identifying plants."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#2E7D32"
+      },
+      "package": "com.florai.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow FlorAI to access your camera for plant identification."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FlorAI needs access to your photos to analyze plant images.",
+          "cameraPermission": "Allow FlorAI to access your camera for plant identification."
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    }
+  }
+}

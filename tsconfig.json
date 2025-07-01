@@ -1,0 +1,51 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext"],
+    "jsx": "react-native",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": false,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types", "./src/@types"],
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
+    "jsxImportSource": "react",
+    "types": ["node", "react"],
+    "allowJs": true,
+    "isolatedModules": true,
+    "noImplicitAny": true,
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleSuffixes": ["native.ts", "native.tsx", "tsx", "ts", "jsx", "js"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "App.tsx",
+    "App.js",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ],
+  "exclude": ["node_modules"],
+  "references": [{ "path": "./node_modules/@types/react-native/tsconfig.base.json" }]
+}
