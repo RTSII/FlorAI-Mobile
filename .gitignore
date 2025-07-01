@@ -1,3 +1,41 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
 
+# testing
+coverage/
+
+# production
+build/
+dist/
+web-build/
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# expo
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# sensitive files
 gcp-service-account-key.json
-node_modules
+gcp-service-account-key.json.*
+*.pem
