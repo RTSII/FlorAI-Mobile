@@ -3,6 +3,7 @@
 **Version:** 2.0.0  
 **Last Updated:** July 1, 2025  
 **Status:** Active Development
+**Repository:** [https://github.com/RTSII/FlorAI-Mobile](https://github.com/RTSII/FlorAI-Mobile)
 
 ## Purpose
 

@@ -152,26 +152,27 @@ export enum ApiErrorCode {
   HTTP_502 = 'HTTP_502',
   HTTP_503 = 'HTTP_503',
   HTTP_504 = 'HTTP_504',
-  
+
   // Authentication Errors
   AUTH_REQUIRED = 'AUTH_REQUIRED',
   AUTH_INVALID = 'AUTH_INVALID',
   AUTH_EXPIRED = 'AUTH_EXPIRED',
-  
+
   // Sensor and Device Errors
   SENSOR_ACCESS_ERROR = 'SENSOR_ACCESS_ERROR',
   CAMERA_ERROR = 'CAMERA_ERROR',
   IMAGE_PROCESSING_ERROR = 'IMAGE_PROCESSING_ERROR',
   PERMISSION_DENIED = 'PERMISSION_DENIED',
   UPLOAD_ERROR = 'UPLOAD_ERROR',
-  
+
   // Network/Client Errors
   NETWORK_ERROR = 'NETWORK_ERROR',
   TIMEOUT = 'TIMEOUT',
   ABORTED = 'ABORTED',
   OFFLINE = 'OFFLINE',
   PARSE_ERROR = 'PARSE_ERROR',
-  
+  CONFIGURATION_ERROR = 'CONFIGURATION_ERROR',
+
   // Business Logic Errors
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   AUTHENTICATION_ERROR = 'AUTHENTICATION_ERROR',
@@ -179,16 +180,16 @@ export enum ApiErrorCode {
   RESOURCE_NOT_FOUND = 'RESOURCE_NOT_FOUND',
   RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
   SERVER_ERROR = 'SERVER_ERROR',
-  
+
   // Plant Identification Specific Errors
   NO_PLANT_DETECTED = 'NO_PLANT_DETECTED',
   LOW_CONFIDENCE_MATCH = 'LOW_CONFIDENCE_MATCH',
   INVALID_IMAGE_FORMAT = 'INVALID_IMAGE_FORMAT',
   IMAGE_TOO_LARGE = 'IMAGE_TOO_LARGE',
   IMAGE_TOO_SMALL = 'IMAGE_TOO_SMALL',
-  
+
   // Fallback
-  UNKNOWN_ERROR = 'UNKNOWN_ERROR'
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 
 // API Error types
@@ -216,6 +217,8 @@ export interface ApiRequestMeta {
   requestId: string;
   retryCount?: number;
   endpoint?: string;
+  warning?: string;
+  confidenceLevel?: number;
 }
 
 // Generic API Response wrapper

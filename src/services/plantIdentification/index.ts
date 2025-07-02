@@ -2,6 +2,7 @@
  * Plant Identification Service
  * Handles plant identification using the API client
  * Enhanced with better error handling and context integration
+ * Uses centralized environment configuration for API keys
  */
 
 import { apiClient } from '../../api/apiClient.ts';
@@ -14,6 +15,7 @@ import {
   ApiError
 } from '../../api/types.ts';
 import { Plant, AppAction } from '../../types/state.ts';
+import { validateEnvironment } from '../../config/env.ts';
 
 /**
  * Convert image URI to base64
@@ -48,10 +50,35 @@ export const imageUriToBase64 = async (uri: string): Promise<string> => {
  * @param imageUri URI of the captured image
  * @returns Promise resolving to plant identification results
  */
+/**
+ * Validates that required environment variables are set before making API calls
+ * @returns true if validation passes, false otherwise
+ */
+const validateEnvironmentForApiCalls = (): boolean => {
+  try {
+    validateEnvironment();
+    return true;
+  } catch (error) {
+    console.error('Environment validation failed:', error);
+    return false;
+  }
+};
+
 export const identifyPlant = async (
   imageUri: string
 ): Promise<ApiResponse<PlantIdentificationResponse>> => {
   try {
+    // Validate environment variables before making API calls
+    if (!validateEnvironmentForApiCalls()) {
+      return {
+        error: {
+          code: ApiErrorCode.CONFIGURATION_ERROR,
+          message: 'API configuration error. Please check environment variables.',
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
+    
     if (!imageUri) {
       throw new Error('No image provided for plant identification');
     }
@@ -69,6 +96,7 @@ export const identifyPlant = async (
     } as unknown as Record<string, unknown>; // Cast to match API client parameter type
     
     // Make API request with custom options for plant ID API
+    // Use API key from centralized config, which is already loaded in API_KEYS
     const options: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -86,13 +114,43 @@ export const identifyPlant = async (
     );
     
     // Additional validation of response data
-    if (response.data && (!response.data.results || response.data.results.length === 0)) {
+    if (!response.data) {
+      return {
+        error: {
+          code: ApiErrorCode.PARSE_ERROR,
+          message: 'Unable to process the server response. Please try again.',
+          details: { source: 'response_validation' },
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
+    
+    if (!response.data.results || response.data.results.length === 0) {
       return {
         error: {
           code: ApiErrorCode.NO_PLANT_DETECTED,
-          message: 'No plants were identified in this image. Please try a clearer photo.',
+          message: 'No plants were identified in this image. Please try a clearer photo with better lighting.',
+          details: { source: 'empty_results' },
           timestamp: new Date().toISOString(),
         },
+      };
+    }
+    
+    // Check for low confidence results
+    const highestConfidenceResult = response.data.results[0];
+    if (highestConfidenceResult && highestConfidenceResult.probability < 0.5) {
+      console.warn('Low confidence plant identification:', highestConfidenceResult.probability);
+      // Still return the results but include a warning in the metadata
+      return {
+        data: response.data,
+        meta: {
+          timestamp: new Date().toISOString(),
+          requestId: response.meta?.requestId || `plant-id-${Date.now()}`,
+          warning: 'Low confidence identification. Results may not be accurate.',
+          confidenceLevel: highestConfidenceResult.probability,
+          endpoint: response.meta?.endpoint,
+          retryCount: response.meta?.retryCount
+        }
       };
     }
     
@@ -100,32 +158,52 @@ export const identifyPlant = async (
   } catch (error) {
     console.error('Error identifying plant:', error);
     
-    // Enhanced error handling with more specific error codes
+    // Enhanced error handling with more specific error codes and detailed information
     let apiError: ApiError;
+    const timestamp = new Date().toISOString();
+    const errorMessage = error instanceof Error ? error.message : String(error);
     
-    if (error instanceof TypeError && error.message.includes('Network')) {
+    if (error instanceof TypeError && errorMessage.includes('Network')) {
       apiError = {
         code: ApiErrorCode.NETWORK_ERROR,
         message: 'Network connection error. Please check your internet connection and try again.',
-        timestamp: new Date().toISOString(),
+        details: { originalError: errorMessage },
+        timestamp,
       };
-    } else if (error instanceof Error && error.message.includes('timeout')) {
+    } else if (error instanceof Error && errorMessage.includes('timeout')) {
       apiError = {
         code: ApiErrorCode.TIMEOUT,
-        message: 'The request timed out. Please try again later.',
-        timestamp: new Date().toISOString(),
+        message: 'The request timed out. The plant identification service may be experiencing high traffic. Please try again later.',
+        details: { originalError: errorMessage },
+        timestamp,
       };
-    } else if (error instanceof Error && error.message.includes('No image')) {
+    } else if (error instanceof Error && errorMessage.includes('No image')) {
       apiError = {
         code: ApiErrorCode.INVALID_IMAGE_FORMAT,
-        message: 'No valid image was provided. Please take a new photo.',
-        timestamp: new Date().toISOString(),
+        message: 'No valid image was provided. Please take a new photo with good lighting and focus.',
+        details: { originalError: errorMessage },
+        timestamp,
+      };
+    } else if (error instanceof Error && errorMessage.includes('too large')) {
+      apiError = {
+        code: ApiErrorCode.IMAGE_TOO_LARGE,
+        message: 'The image file is too large. Please use a smaller image or reduce its resolution.',
+        details: { originalError: errorMessage },
+        timestamp,
+      };
+    } else if (error instanceof Error && errorMessage.includes('format')) {
+      apiError = {
+        code: ApiErrorCode.INVALID_IMAGE_FORMAT,
+        message: 'The image format is not supported. Please use a JPEG or PNG image.',
+        details: { originalError: errorMessage },
+        timestamp,
       };
     } else {
       apiError = {
         code: ApiErrorCode.UNKNOWN_ERROR,
         message: 'An unexpected error occurred during plant identification. Please try again.',
-        timestamp: new Date().toISOString(),
+        details: { originalError: errorMessage },
+        timestamp,
       };
     }
     
@@ -160,8 +238,19 @@ export interface PlantDetails {
  */
 export const getPlantDetails = async (plantId: string): Promise<ApiResponse<PlantDetails>> => {
   try {
+    // Validate environment variables before making API calls
+    if (!validateEnvironmentForApiCalls()) {
+      return {
+        error: {
+          code: ApiErrorCode.CONFIGURATION_ERROR,
+          message: 'API configuration error. Please check environment variables.',
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
+    
     if (!plantId) {
-      throw new Error('No plant ID provided');
+      throw new Error('No plant ID provided for details lookup');
     }
     
     // Define response type inline for clarity
@@ -181,11 +270,23 @@ export const getPlantDetails = async (plantId: string): Promise<ApiResponse<Plan
     );
     
     // Additional validation of response data
-    if (response.data && !response.data.plant) {
+    if (!response.data) {
+      return {
+        error: {
+          code: ApiErrorCode.PARSE_ERROR,
+          message: 'Unable to process the server response. Please try again.',
+          details: { source: 'response_validation' },
+          timestamp: new Date().toISOString(),
+        },
+      };
+    }
+    
+    if (!response.data.plant) {
       return {
         error: {
           code: ApiErrorCode.RESOURCE_NOT_FOUND,
-          message: 'Plant details not found. The plant may not exist in our database.',
+          message: 'Plant details not found. The plant may not exist in our database or may have been removed.',
+          details: { plantId },
           timestamp: new Date().toISOString(),
         },
       };
@@ -198,36 +299,56 @@ export const getPlantDetails = async (plantId: string): Promise<ApiResponse<Plan
     };
   } catch (error) {
     console.error('Error getting plant details:', error);
-    
-    // Enhanced error handling with more specific error codes
+
+    // Enhanced error handling with more specific error codes and detailed information
     let apiError: ApiError;
-    
-    if (error instanceof TypeError && error.message.includes('Network')) {
+    const timestamp = new Date().toISOString();
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (error instanceof TypeError && errorMessage.includes('Network')) {
       apiError = {
         code: ApiErrorCode.NETWORK_ERROR,
         message: 'Network connection error. Please check your internet connection and try again.',
-        timestamp: new Date().toISOString(),
+        details: { originalError: errorMessage, plantId },
+        timestamp,
       };
-    } else if (error instanceof Error && error.message.includes('timeout')) {
+    } else if (error instanceof Error && errorMessage.includes('timeout')) {
       apiError = {
         code: ApiErrorCode.TIMEOUT,
-        message: 'The request timed out. Please try again later.',
-        timestamp: new Date().toISOString(),
+        message: 'The request timed out. The plant database service may be experiencing high traffic. Please try again later.',
+        details: { originalError: errorMessage, plantId },
+        timestamp,
       };
-    } else if (error instanceof Error && error.message.includes('No plant ID')) {
+    } else if (error instanceof Error && errorMessage.includes('No plant ID')) {
       apiError = {
         code: ApiErrorCode.VALIDATION_ERROR,
-        message: 'No valid plant ID was provided.',
-        timestamp: new Date().toISOString(),
+        message: 'No plant ID was provided. Please select a plant first.',
+        details: { originalError: errorMessage },
+        timestamp,
+      };
+    } else if (error instanceof Error && errorMessage.includes('404')) {
+      apiError = {
+        code: ApiErrorCode.RESOURCE_NOT_FOUND,
+        message: 'The requested plant information could not be found. It may have been removed from our database.',
+        details: { originalError: errorMessage, plantId },
+        timestamp,
+      };
+    } else if (error instanceof Error && errorMessage.includes('403')) {
+      apiError = {
+        code: ApiErrorCode.AUTH_INVALID,
+        message: 'Access to this plant information is restricted. Your API key may not have sufficient permissions.',
+        details: { originalError: errorMessage, plantId },
+        timestamp,
       };
     } else {
       apiError = {
         code: ApiErrorCode.UNKNOWN_ERROR,
-        message: 'An unexpected error occurred while fetching plant details. Please try again.',
-        timestamp: new Date().toISOString(),
+        message: 'An unexpected error occurred while retrieving plant details. Please try again.',
+        details: { originalError: errorMessage, plantId },
+        timestamp,
       };
     }
-    
+
     return { error: apiError };
   }
 };

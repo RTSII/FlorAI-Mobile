@@ -39,6 +39,7 @@ The documentation is organized into three main categories:
 - [**Project Plan**](./project-plan.md) - Comprehensive project plan including current status, testing strategy, and manual QA checklist.
 - [**Project Status**](./project-status.md) - Current project state, completed features, in-progress items, and known issues.
 - [**Implementation Roadmap**](./implementation-roadmap.md) - Detailed timeline and milestones for project implementation.
+- [**AI Agent Assignments**](./ai-agent-assignments.md) - Detailed guidance on which AI models and agents to use for specific development tasks.
 
 ### Technical Documentation
 

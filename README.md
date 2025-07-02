@@ -1,5 +1,7 @@
 # FlorAI-Mobile - AI-Powered Plant Identification App
 
+**Repository:** [https://github.com/RTSII/FlorAI-Mobile](https://github.com/RTSII/FlorAI-Mobile)
+
 ## 📌 Current Status (Last Updated: 2025-06-27)
 
 ### Recent Changes
@@ -33,6 +35,18 @@ A mobile app that identifies plant species in real-time using device camera and 
 - **Transparent Premium Experience**: No aggressive paywalls, clear value proposition
 - **Advanced Features**: AR plant visualization, growth prediction, AI plant doctor with historical context
 - **Real-time Performance**: Optimized for smooth camera performance and minimal AI detection latency
+
+## 📝 Development Guidelines
+
+### Git Workflow
+
+We follow a structured Git workflow to maintain code quality and facilitate collaboration. Please review our [Git Workflow Guidelines](./docs/git-workflow.md) before contributing to the repository.
+
+Key points:
+- Follow the branching strategy (feature/, bugfix/, hotfix/, release/ branches)
+- Use conventional commits format for commit messages
+- Never commit sensitive information (API keys, credentials, etc.)
+- Create pull requests for code reviews before merging
 
 ## 🏗️ Technical Architecture
 

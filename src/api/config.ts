@@ -3,9 +3,11 @@
  * Contains base URLs, endpoints, and other configuration for API services
  */
 
+import { env, isDevelopment } from '../config/env.ts';
+
 // API Base URLs
 export const API_BASE_URL = 'https://api.florai.example.com/v1';
-export const PLANT_ID_API_URL = 'https://plant-id-api.example.com/v1';
+export const { PLANT_ID_API_URL } = env;
 
 // Endpoints
 export const ENDPOINTS = {
@@ -47,8 +49,15 @@ export const BATCH_SIZES = {
   SEARCH_RESULTS: 20, // Default page size for search results
 };
 
-// API Keys (these would be loaded from environment variables in a real app)
-// For development purposes only - in production, use secure environment variables
+// API Keys loaded from centralized environment configuration
 export const API_KEYS = {
-  PLANT_ID: process.env.PLANT_ID_API_KEY || 'DEMO_API_KEY',
+  PLANT_ID: env.PLANT_ID_API_KEY,
 };
+
+// Log warning if using development keys in development mode
+if (isDevelopment() && env.PLANT_ID_API_KEY === 'DEVELOPMENT_MODE_KEY') {
+  console.warn(
+    'Using development API key for plant identification. ' +
+    'Set PLANT_ID_API_KEY in your environment or app.config.js for Expo.'
+  );
+}

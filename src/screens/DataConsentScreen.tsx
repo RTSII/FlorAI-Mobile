@@ -12,7 +12,7 @@ import { Switch } from 'react-native-paper';
 import Button from '../components/Button';
 import Typography from '../components/Typography';
 import { theme } from '../theme';
-import { useUserPreferences } from '../context/UserPreferencesContext';
+import { useUserPreferences } from '../contexts/UserPreferencesContext';
 
 // Consent option types
 interface ConsentOption {

@@ -1,9 +1,17 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, Theme } from '@react-navigation/native';
 import { useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+// Type assertion for MaterialCommunityIcons
+const MaterialCommunityIconsWithType = MaterialCommunityIcons as unknown as React.ComponentType<{
+  name: string;
+  size?: number;
+  color?: string;
+  style?: Record<string, unknown>;
+}>;
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -22,6 +30,11 @@ import {
   CareStackParamList,
   DiscoverStackParamList,
 } from './types';
+
+// Define props for AppNavigator
+interface AppNavigatorProps {
+  theme: Theme;
+}
 
 // Create navigators
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -92,23 +105,27 @@ const MainTabs = () => {
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+      screenOptions={({ route }: { route: { name: string } }) => ({
+        tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
           let iconName = 'leaf';
 
+          // Match icons to UI/UX guidelines
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Identify') {
-            iconName = focused ? 'camera' : 'camera-outline';
+            // Changed from camera to magnify as per App.tsx for consistency
+            iconName = focused ? 'magnify' : 'magnify';
           } else if (route.name === 'Collection') {
-            iconName = focused ? 'leaf' : 'leaf-outline';
+            // Changed from leaf to bookmark as per App.tsx for consistency
+            iconName = focused ? 'bookmark' : 'bookmark-outline';
           } else if (route.name === 'Care') {
-            iconName = focused ? 'calendar' : 'calendar-outline';
+            // Changed from calendar to watering-can as per App.tsx for consistency
+            iconName = focused ? 'watering-can' : 'watering-can-outline';
           } else if (route.name === 'Discover') {
             iconName = focused ? 'compass' : 'compass-outline';
           }
 
-          return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+          return <MaterialCommunityIconsWithType name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
@@ -117,12 +134,14 @@ const MainTabs = () => {
           borderTopWidth: 0,
           elevation: 0,
           shadowOpacity: 0,
-          height: 60,
+          // Updated height to match UI/UX guidelines (80px)
+          height: 80,
           paddingBottom: 8,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
+          fontWeight: '500',
           marginBottom: 4,
         },
         tabBarItemStyle: {
@@ -138,16 +157,29 @@ const MainTabs = () => {
         component={CollectionStackScreen}
         options={{ title: 'My Plants' }}
       />
-      <Tab.Screen name="Care" component={CareStackScreen} options={{ title: 'Care' }} />
+      <Tab.Screen 
+        name="Care" 
+        component={CareStackScreen} 
+        options={{ 
+          title: 'Care',
+          // Add premium indicator badge as per UI/UX guidelines
+          tabBarBadge: 'PRO',
+          tabBarBadgeStyle: {
+            backgroundColor: theme.colors.tertiary,
+            fontSize: 10,
+            fontWeight: 'bold',
+          }
+        }} 
+      />
       <Tab.Screen name="Discover" component={DiscoverStackScreen} options={{ title: 'Discover' }} />
     </Tab.Navigator>
   );
 };
 
 // Root Navigator
-const AppNavigator = () => {
+const AppNavigator = ({ theme }: AppNavigatorProps) => {
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={theme}>
       <RootStack.Navigator>
         <RootStack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
         {/* Add auth screens and modal screens here */}

@@ -24,7 +24,6 @@
     "allowJs": true,
     "isolatedModules": true,
     "noImplicitAny": true,
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
