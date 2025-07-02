@@ -123,8 +123,52 @@ All code changes should be reviewed before merging to ensure quality and consist
    - If you receive a secret scanning alert, immediately rotate any compromised credentials
    - Use the GitHub interface to bypass alerts only for non-sensitive or revoked credentials
 
+## Troubleshooting Common Issues
+
+### Commit Message Format Errors
+
+If you encounter errors when committing, it's likely due to commit message format validation:
+
+```
+✖   subject may not be empty [subject-empty]
+✖   type may not be empty [type-empty]
+
+✖   found 2 problems, 0 warnings
+ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+husky - commit-msg script failed (code 1)
+```
+
+**Solution:**
+
+1. Ensure your commit message follows the Conventional Commits format: `<type>[optional scope]: <description>`
+2. Valid types include: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+3. Example of a valid commit message: `fix: optimize plant identification service structure`
+
+### Bypassing Husky Hooks (Emergency Only)
+
+In emergency situations where you need to bypass the commit hooks:
+
+```bash
+git commit -m "fix: your message here" --no-verify
+```
+
+**Note:** This should only be used in exceptional circumstances. Always try to follow the proper commit message format first.
+
+### Husky Deprecation Warnings
+
+If you see Husky deprecation warnings about lines in `.husky/commit-msg`, you may need to remove these lines:
+
+```
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+```
+
+These will be removed in Husky v10.0.0 and should be addressed proactively.
+
 ## Additional Resources
 
 - [GitHub Flow Guide](https://guides.github.com/introduction/flow/)
 - [Conventional Commits Specification](https://www.conventionalcommits.org/)
 - [GitHub Secret Scanning Documentation](https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning)
+- [Husky Documentation](https://typicode.github.io/husky/)
